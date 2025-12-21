@@ -1,0 +1,14 @@
+nodes/**/*.ts
+credentials/**/*.ts
+test/
+examples/
+*.json
+!package.json
+tsconfig.json
+.eslintrc.js
+.prettierrc.js
+gulpfile.js
+*.md
+!README.md
+.gitignore
+test.sh
