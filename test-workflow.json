@@ -1,0 +1,313 @@
+{
+	"name": "PromptShield Guard - Test Workflow",
+	"nodes": [
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "test_case",
+							"value": "safe_content"
+						},
+						{
+							"name": "text",
+							"value": "Hello, how can I help you today? This is safe content."
+						}
+					]
+				}
+			},
+			"id": "set-safe",
+			"name": "Test 1: Safe Content",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [240, 200]
+		},
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "test_case",
+							"value": "hipaa_violation"
+						},
+						{
+							"name": "text",
+							"value": "Patient John Doe, SSN: 123-45-6789, DOB: 01/01/1990, diagnosed with diabetes."
+						}
+					]
+				}
+			},
+			"id": "set-hipaa",
+			"name": "Test 2: HIPAA Violation",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [240, 300]
+		},
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "test_case",
+							"value": "pci_violation"
+						},
+						{
+							"name": "text",
+							"value": "Your credit card 4111-1111-1111-1111 expires 12/25, CVV 123 has been charged."
+						}
+					]
+				}
+			},
+			"id": "set-pci",
+			"name": "Test 3: PCI Violation",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [240, 400]
+		},
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "test_case",
+							"value": "nested_data"
+						}
+					],
+					"object": [
+						{
+							"name": "payload",
+							"value": {
+								"message": {
+									"content": "Please email your personal details to admin@company.com",
+									"metadata": {
+										"sender": "user123",
+										"timestamp": "2024-01-15T10:30:00Z"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			"id": "set-nested",
+			"name": "Test 4: Nested Data",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [240, 500]
+		},
+		{
+			"parameters": {
+				"textField": "text",
+				"frameworks": ["HIPAA", "GDPR", "PCI"],
+				"additionalSettings": {
+					"cleanTextPath": "sanitized_text",
+					"metaPath": "security_analysis",
+					"onError": "block"
+				}
+			},
+			"id": "promptshield-simple",
+			"name": "PromptShield Guard - Simple",
+			"type": "n8n-nodes-promptshield-guard.promptLockGuard",
+			"typeVersion": 1,
+			"position": [480, 250],
+			"credentials": {
+				"promptLockApiKey": {
+					"id": "1",
+					"name": "PromptShield Local"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"textField": "payload.message.content",
+				"frameworks": ["GDPR"],
+				"additionalSettings": {
+					"actionOnHighRisk": "redact",
+					"cleanTextPath": "payload.clean_content",
+					"metaPath": "compliance_check"
+				}
+			},
+			"id": "promptshield-nested",
+			"name": "PromptShield Guard - Nested",
+			"type": "n8n-nodes-promptshield-guard.promptLockGuard",
+			"typeVersion": 1,
+			"position": [480, 500],
+			"credentials": {
+				"promptLockApiKey": {
+					"id": "1",
+					"name": "PromptShield Local"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"jsCode": "// Log results for verification\nconst items = $input.all();\n\nfor (const item of items) {\n  console.log('=== TEST RESULT ===');\n  console.log('Test Case:', item.json.test_case);\n  console.log('Original Text:', item.json.text);\n  console.log('Risk Score:', item.json.security_analysis?.risk_score);\n  console.log('Action Taken:', item.json.security_analysis?.action_taken);\n  console.log('Violations:', item.json.security_analysis?.violations?.length || 0);\n  if (item.json.sanitized_text) {\n    console.log('Sanitized:', item.json.sanitized_text);\n  }\n  console.log('---');\n}\n\nreturn items;"
+			},
+			"id": "log-allow",
+			"name": "Log Allow Results",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 1,
+			"position": [720, 150]
+		},
+		{
+			"parameters": {
+				"jsCode": "// Log flagged results\nconst items = $input.all();\n\nfor (const item of items) {\n  console.log('🚩 FLAGGED:', item.json.test_case);\n  console.log('Risk Score:', item.json.security_analysis?.risk_score);\n  console.log('Violations:', item.json.security_analysis?.violations?.map(v => v.type));\n}\n\nreturn items;"
+			},
+			"id": "log-flag",
+			"name": "Log Flag Results",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 1,
+			"position": [720, 250]
+		},
+		{
+			"parameters": {
+				"jsCode": "// Log redacted results\nconst items = $input.all();\n\nfor (const item of items) {\n  console.log('🔒 REDACTED:', item.json.test_case);\n  console.log('Original:', item.json.text?.substring(0, 50) + '...');\n  console.log('Clean:', item.json.sanitized_text?.substring(0, 50) + '...');\n}\n\nreturn items;"
+			},
+			"id": "log-redact",
+			"name": "Log Redact Results",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 1,
+			"position": [720, 350]
+		},
+		{
+			"parameters": {
+				"jsCode": "// Log blocked results\nconst items = $input.all();\n\nfor (const item of items) {\n  console.log('🚫 BLOCKED:', item.json.test_case);\n  console.log('Risk Score:', item.json.security_analysis?.risk_score);\n  console.log('Reason:', item.json.security_analysis?.violations?.[0]?.type);\n}\n\nreturn items;"
+			},
+			"id": "log-block",
+			"name": "Log Block Results",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 1,
+			"position": [720, 450]
+		},
+		{
+			"parameters": {
+				"jsCode": "// Log nested field test results\nconst items = $input.all();\n\nfor (const item of items) {\n  console.log('=== NESTED TEST RESULT ===');\n  console.log('Original:', item.json.payload?.message?.content);\n  console.log('Clean:', item.json.payload?.clean_content);\n  console.log('Analysis:', item.json.compliance_check);\n}\n\nreturn items;"
+			},
+			"id": "log-nested",
+			"name": "Log Nested Results",
+			"type": "n8n-nodes-base.code",
+			"typeVersion": 1,
+			"position": [720, 550]
+		}
+	],
+	"connections": {
+		"Test 1: Safe Content": {
+			"main": [
+				[
+					{
+						"node": "PromptShield Guard - Simple",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Test 2: HIPAA Violation": {
+			"main": [
+				[
+					{
+						"node": "PromptShield Guard - Simple",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Test 3: PCI Violation": {
+			"main": [
+				[
+					{
+						"node": "PromptShield Guard - Simple",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Test 4: Nested Data": {
+			"main": [
+				[
+					{
+						"node": "PromptShield Guard - Nested",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"PromptShield Guard - Simple": {
+			"main": [
+				[
+					{
+						"node": "Log Allow Results",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "Log Flag Results",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "Log Redact Results",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "Log Block Results",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"PromptShield Guard - Nested": {
+			"main": [
+				[
+					{
+						"node": "Log Nested Results",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "Log Nested Results",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "Log Nested Results",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "Log Nested Results",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"versionId": "1",
+	"meta": {
+		"templateCredsSetupCompleted": true
+	},
+	"id": "promptshield-test-workflow",
+	"tags": ["test", "security", "promptshield"]
+}

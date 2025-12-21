@@ -1,0 +1,234 @@
+{
+	"name": "PromptShield Guard - Quick Test",
+	"nodes": [
+		{
+			"parameters": {},
+			"id": "manual-trigger",
+			"name": "Manual Trigger",
+			"type": "n8n-nodes-base.manualTrigger",
+			"typeVersion": 1,
+			"position": [80, 300]
+		},
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "test_case",
+							"value": "high_risk_content"
+						},
+						{
+							"name": "text",
+							"value": "My email is alice@example.com and my SSN is 123-45-6789. Please process my credit card 4242-4242-4242-4242."
+						}
+					]
+				}
+			},
+			"id": "input-data",
+			"name": "Input Data",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [280, 300]
+		},
+		{
+			"parameters": {
+				"textField": "text",
+				"frameworks": ["HIPAA", "GDPR", "PCI"],
+				"additionalSettings": {
+					"cleanTextPath": "cleanText",
+					"metaPath": "promptLock",
+					"onError": "block"
+				}
+			},
+			"id": "promptshield-guard",
+			"name": "PromptShield Guard",
+			"type": "n8n-nodes-promptshield-guard.promptLockGuard",
+			"typeVersion": 1,
+			"position": [480, 300],
+			"credentials": {
+				"promptLockApiKey": {
+					"id": "YOUR_CRED_ID_HERE",
+					"name": "PromptShield Local"
+				}
+			}
+		},
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "result",
+							"value": "✅ ALLOWED: Content is safe to proceed"
+						},
+						{
+							"name": "original_text",
+							"value": "={{ $json.text }}"
+						},
+						{
+							"name": "risk_score",
+							"value": "={{ $json.promptLock.risk_score }}"
+						}
+					]
+				}
+			},
+			"id": "allowed-result",
+			"name": "✅ Allowed",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [720, 160]
+		},
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "result",
+							"value": "⚠️ FLAGGED: Content needs review"
+						},
+						{
+							"name": "original_text",
+							"value": "={{ $json.text }}"
+						},
+						{
+							"name": "risk_score",
+							"value": "={{ $json.promptLock.risk_score }}"
+						},
+						{
+							"name": "violations",
+							"value": "={{ $json.promptLock.violations.map(v => v.type).join(', ') }}"
+						}
+					]
+				}
+			},
+			"id": "flagged-result",
+			"name": "⚠️ Flagged",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [720, 260]
+		},
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "result",
+							"value": "🔒 REDACTED: Content cleaned and safe"
+						},
+						{
+							"name": "original_text",
+							"value": "={{ $json.text }}"
+						},
+						{
+							"name": "clean_text",
+							"value": "={{ $json.cleanText }}"
+						},
+						{
+							"name": "risk_score",
+							"value": "={{ $json.promptLock.risk_score }}"
+						}
+					]
+				}
+			},
+			"id": "redacted-result",
+			"name": "🔒 Redacted",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [720, 360]
+		},
+		{
+			"parameters": {
+				"values": {
+					"string": [
+						{
+							"name": "result",
+							"value": "🚫 BLOCKED: Content violates security policy"
+						},
+						{
+							"name": "risk_score",
+							"value": "={{ $json.promptLock.risk_score }}"
+						},
+						{
+							"name": "violations",
+							"value": "={{ $json.promptLock.violations.map(v => v.type).join(', ') }}"
+						},
+						{
+							"name": "compliance_status",
+							"value": "={{ JSON.stringify($json.promptLock.compliance_status) }}"
+						}
+					]
+				}
+			},
+			"id": "blocked-result",
+			"name": "🚫 Blocked",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [720, 460]
+		}
+	],
+	"connections": {
+		"Manual Trigger": {
+			"main": [
+				[
+					{
+						"node": "Input Data",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Input Data": {
+			"main": [
+				[
+					{
+						"node": "PromptShield Guard",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"PromptShield Guard": {
+			"main": [
+				[
+					{
+						"node": "✅ Allowed",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "⚠️ Flagged",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "🔒 Redacted",
+						"type": "main",
+						"index": 0
+					}
+				],
+				[
+					{
+						"node": "🚫 Blocked",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	},
+	"active": false,
+	"settings": {
+		"executionOrder": "v1"
+	},
+	"versionId": "1",
+	"meta": {
+		"templateCredsSetupCompleted": false
+	},
+	"id": "promptshield-quick-test",
+	"tags": ["test", "security", "promptshield", "demo"]
+}
