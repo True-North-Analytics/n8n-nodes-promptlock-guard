@@ -4,6 +4,7 @@ import {
 	ICredentialType,
 	INodeProperties,
 } from 'n8n-workflow';
+
 export class PromptLockApiKey implements ICredentialType {
 	name = 'promptLockApiKey';
 	displayName = 'PromptLock API Key';
@@ -28,26 +29,8 @@ export class PromptLockApiKey implements ICredentialType {
 			description: 'Your PromptLock API key (starts with ps_)',
 			required: true,
 		},
-		{
-			displayName: 'Header Style',
-			name: 'headerStyle',
-			type: 'options',
-			options: [
-				{
-					name: 'X-API-Key (Recommended)',
-					value: 'x-api-key',
-					description: 'Send API key in X-API-Key header',
-				},
-				{
-					name: 'Authorization Bearer',
-					value: 'bearer',
-					description: 'Send API key in Authorization: Bearer header',
-				},
-			],
-			default: 'x-api-key',
-			description: 'How to send the API key (both are supported by PromptLock)',
-		},
 	];
+
 	authenticate: IAuthenticateGeneric = {
 		type: 'generic',
 		properties: {
@@ -56,6 +39,7 @@ export class PromptLockApiKey implements ICredentialType {
 			},
 		},
 	};
+
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: '={{$credentials.baseUrl}}',
