@@ -1,6 +1,6 @@
 {
 	"name": "n8n-nodes-promptlock-guard",
-	"version": "1.0.12",
+	"version": "1.0.13",
 	"description": "AI-powered security guardrails for n8n workflows - analyze, redact, or block content based on HIPAA, GDPR, and PCI compliance frameworks",
 	"keywords": [
 		"n8n",
