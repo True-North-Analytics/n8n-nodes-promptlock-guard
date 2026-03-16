@@ -5,7 +5,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeOperationError, NodeConnectionType } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 
 export class PromptLockGuard implements INodeType {
 	description: INodeTypeDescription = {
@@ -27,8 +27,8 @@ export class PromptLockGuard implements INodeType {
 				required: true,
 			},
 		],
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main, NodeConnectionType.Main, NodeConnectionType.Main, NodeConnectionType.Main],
+		inputs: ['main'] as any,
+		outputs: ['main', 'main', 'main', 'main'] as any,
 		outputNames: ['Allow', 'Flag', 'Redact', 'Block'],
 		properties: [
 			{
