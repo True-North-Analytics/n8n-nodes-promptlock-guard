@@ -63,6 +63,7 @@ The node provides four distinct outputs:
 - ⚠️ **Flag**: Content needs review, proceed with caution
 - 🔒 **Redact**: Content has been cleaned, use `cleanText` field
 - 🚫 **Block**: Content is blocked, do not proceed
+-    **Prompt injection detection is always enabled by default.**
 
 ## 📋 Quick Example
 ```
