@@ -130,7 +130,7 @@ export class PromptLockGuard implements INodeType {
 						type: 'options',
 						options: [
 							{
-								name: 'Inherit from Policy (Recommended)',
+								name: 'Inherit from Policy,
 								value: 'inherit',
 								description: 'Use server-side policy configuration',
 							},
