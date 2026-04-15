@@ -9,6 +9,7 @@ export class PromptLockApiKey implements ICredentialType {
 	name = 'promptLockApiKey';
 	displayName = 'PromptLock API Key';
 	documentationUrl = 'https://docs.promptlock.com/integrations/n8n';
+	icon = 'file:promptlock.svg' as const;
 	properties: INodeProperties[] = [
 		{
 			displayName: 'Base URL',
