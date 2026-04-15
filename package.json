@@ -31,7 +31,7 @@
 	},
 	"main": "index.js",
 	"engines": {
-		"node": ">=18.0.0",
+		"node": ">=22.0.0",
 		"npm": ">=8.0.0"
 	},
 	"scripts": {
@@ -40,6 +40,7 @@
 		"format": "prettier nodes credentials --write",
 		"lint": "eslint nodes credentials package.json",
 		"lintfix": "eslint nodes credentials package.json --fix",
+		"release": "n8n-node release",
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"clean": "rm -rf dist",
@@ -62,6 +63,7 @@
 		]
 	},
 	"devDependencies": {
+		"@n8n/node-cli": "^0.23.0",
 		"@types/jest": "^29.0.0",
 		"@types/node": "^20.0.0",
 		"@typescript-eslint/parser": "^6.0.0",
