@@ -5,7 +5,7 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
+import { JsonObject, NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
 export class PromptLockGuard implements INodeType {
 	description: INodeTypeDescription = {
@@ -361,8 +361,8 @@ export class PromptLockGuard implements INodeType {
 				const outputItem = { json: outItem, pairedItem: { item: i } };
 
 				if (onError === 'throw') {
-    			if (error instanceof Error && 'response' in error) {
-        		throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
+    				if (error instanceof Error && 'response' in error) {
+        				throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
     			}
     			throw new NodeOperationError(this.getNode(), errorMessage, { itemIndex: i });
 				} else if (onError === 'allow') {
