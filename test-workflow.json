@@ -1,5 +1,5 @@
 {
-	"name": "PromptShield Guard - Test Workflow",
+	"name": "PromptLock Guard - Test Workflow",
 	"nodes": [
 		{
 			"parameters": {
@@ -105,15 +105,15 @@
 					"onError": "block"
 				}
 			},
-			"id": "promptshield-simple",
-			"name": "PromptShield Guard - Simple",
-			"type": "n8n-nodes-promptshield-guard.promptLockGuard",
+			"id": "promptlock-simple",
+			"name": "PromptLock Guard - Simple",
+			"type": "n8n-nodes-promptlock-guard.promptLockGuard",
 			"typeVersion": 1,
 			"position": [480, 250],
 			"credentials": {
 				"promptLockApiKey": {
 					"id": "1",
-					"name": "PromptShield Local"
+					"name": "PromptLock Local"
 				}
 			}
 		},
@@ -127,15 +127,15 @@
 					"metaPath": "compliance_check"
 				}
 			},
-			"id": "promptshield-nested",
-			"name": "PromptShield Guard - Nested",
-			"type": "n8n-nodes-promptshield-guard.promptLockGuard",
+			"id": "promptlock-nested",
+			"name": "PromptLock Guard - Nested",
+			"type": "n8n-nodes-promptlock-guard.promptLockGuard",
 			"typeVersion": 1,
 			"position": [480, 500],
 			"credentials": {
 				"promptLockApiKey": {
 					"id": "1",
-					"name": "PromptShield Local"
+					"name": "PromptLock Local"
 				}
 			}
 		},
@@ -195,7 +195,7 @@
 			"main": [
 				[
 					{
-						"node": "PromptShield Guard - Simple",
+						"node": "PromptLock Guard - Simple",
 						"type": "main",
 						"index": 0
 					}
@@ -206,7 +206,7 @@
 			"main": [
 				[
 					{
-						"node": "PromptShield Guard - Simple",
+						"node": "PromptLock Guard - Simple",
 						"type": "main",
 						"index": 0
 					}
@@ -217,7 +217,7 @@
 			"main": [
 				[
 					{
-						"node": "PromptShield Guard - Simple",
+						"node": "PromptLock Guard - Simple",
 						"type": "main",
 						"index": 0
 					}
@@ -228,14 +228,14 @@
 			"main": [
 				[
 					{
-						"node": "PromptShield Guard - Nested",
+						"node": "PromptLock Guard - Nested",
 						"type": "main",
 						"index": 0
 					}
 				]
 			]
 		},
-		"PromptShield Guard - Simple": {
+		"PromptLock Guard - Simple": {
 			"main": [
 				[
 					{
@@ -267,7 +267,7 @@
 				]
 			]
 		},
-		"PromptShield Guard - Nested": {
+		"PromptLock Guard - Nested": {
 			"main": [
 				[
 					{
@@ -308,6 +308,6 @@
 	"meta": {
 		"templateCredsSetupCompleted": true
 	},
-	"id": "promptshield-test-workflow",
-	"tags": ["test", "security", "promptshield"]
+	"id": "promptlock-test-workflow",
+	"tags": ["test", "security", "promptlock"]
 }

@@ -1,5 +1,5 @@
 {
-	"name": "PromptShield Guard - Quick Test",
+	"name": "PromptLock Guard - Quick Test",
 	"nodes": [
 		{
 			"parameters": {},
@@ -40,15 +40,15 @@
 					"onError": "block"
 				}
 			},
-			"id": "promptshield-guard",
-			"name": "PromptShield Guard",
-			"type": "n8n-nodes-promptshield-guard.promptLockGuard",
+			"id": "promptlock-guard",
+			"name": "PromptLock Guard",
+			"type": "n8n-nodes-promptlock-guard.promptLockGuard",
 			"typeVersion": 1,
 			"position": [480, 300],
 			"credentials": {
 				"promptLockApiKey": {
 					"id": "YOUR_CRED_ID_HERE",
-					"name": "PromptShield Local"
+					"name": "PromptLock Local"
 				}
 			}
 		},
@@ -181,14 +181,14 @@
 			"main": [
 				[
 					{
-						"node": "PromptShield Guard",
+						"node": "PromptLock Guard",
 						"type": "main",
 						"index": 0
 					}
 				]
 			]
 		},
-		"PromptShield Guard": {
+		"PromptLock Guard": {
 			"main": [
 				[
 					{
@@ -229,6 +229,6 @@
 	"meta": {
 		"templateCredsSetupCompleted": false
 	},
-	"id": "promptshield-quick-test",
-	"tags": ["test", "security", "promptshield", "demo"]
+	"id": "promptlock-quick-test",
+	"tags": ["test", "security", "promptlock", "demo"]
 }

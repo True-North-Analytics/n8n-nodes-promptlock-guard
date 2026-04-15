@@ -13,6 +13,8 @@ PromptLock Guard is a community node that adds content analysis and sensitive da
 - 🎯 **Flexible Targeting**: Support for nested field paths with dot notation
 - 📊 **Rich Metadata**: Detailed analysis results attached to each item
 
+> **Note:** Prompt injection detection is always enabled by default, regardless of which compliance frameworks are selected.
+
 ## 🚀 Installation
 
 ### Community Nodes (Recommended)
@@ -63,7 +65,6 @@ The node provides four distinct outputs:
 - ⚠️ **Flag**: Content needs review, proceed with caution
 - 🔒 **Redact**: Content has been cleaned, use `cleanText` field
 - 🚫 **Block**: Content is blocked, do not proceed
--    **Prompt injection detection is always enabled by default.**
 
 ## 📋 Quick Example
 ```

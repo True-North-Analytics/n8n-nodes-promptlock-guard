@@ -179,7 +179,7 @@ export class PromptLockGuard implements INodeType {
 						type: 'options',
 						options: [
 							{
-								name: 'Block (Fail Closed) - Recommended',
+								name: 'Block (Fail Closed)',
 								value: 'block',
 								description: 'Route to Block output when API fails - most secure',
 							},
@@ -361,10 +361,10 @@ export class PromptLockGuard implements INodeType {
 				const outputItem = { json: outItem, pairedItem: { item: i } };
 
 				if (onError === 'throw') {
-    				if (error instanceof Error && 'response' in error) {
-        				throw new NodeApiError(this.getNode(), error as JsonObject, { itemIndex: i });
-    			}
-    			throw new NodeOperationError(this.getNode(), errorMessage, { itemIndex: i });
+					if (error instanceof Error && 'response' in error) {
+					throw new NodeApiError(this.getNode(), error as unknown as JsonObject, { itemIndex: i });
+				}
+				throw new NodeOperationError(this.getNode(), errorMessage, { itemIndex: i });
 				} else if (onError === 'allow') {
 					outAllow.push(outputItem);
 				} else if (onError === 'flag') {
