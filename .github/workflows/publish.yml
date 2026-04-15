@@ -1,3 +1,35 @@
+# Publishes this n8n community node package to npm on every version tag push.
+#
+# Provenance lets anyone cryptographically verify that a specific workflow
+# built the package, from this exact repository and commit.
+#
+# ─── PREREQUISITES ───────────────────────────────────────────────────────────
+#
+# @n8n/node-cli >= 0.23.0 is required as a devDependency. Check with:
+#   npm list @n8n/node-cli
+# To upgrade:
+#   npm install --save-dev @n8n/node-cli@latest
+#
+# ─── ONE-TIME SETUP ──────────────────────────────────────────────────────────
+#
+# Option A — OIDC Trusted Publishing (recommended, no long-lived secrets):
+#   1. Log in to npmjs.com and open this package's settings.
+#   2. Under Publish access > Trusted Publishers, click Add a publisher.
+#   3. Select GitHub Actions and fill in:
+#        Repository owner: <your GitHub username or org>
+#        Repository name:  <your repository name>
+#        Workflow name:    publish.yml
+#
+# Option B — npm token:
+#   1. Create a Granular Access Token on npmjs.com.
+#   2. Store it as NPM_TOKEN in your repository's Actions secrets.
+#   3. Uncomment the NODE_AUTH_TOKEN line in the publish step below.
+#
+# ─── TAG CONVENTION ──────────────────────────────────────────────────────────
+#
+# Run `npm run release` locally to bump the version, commit, tag, and push.
+# That push triggers this workflow to publish to npm with provenance.
+
 name: Publish to npm
 
 on:
@@ -9,26 +41,21 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      id-token: write   # required for OIDC trusted publishing
       contents: read
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 22
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
-
       - name: Publish with provenance
-        run: npm publish --access public
+        run: npm run release
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_ACTIONS: 'true'
+          # NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}  # uncomment if using Option B
