@@ -7,6 +7,10 @@ import type {
 } from 'n8n-workflow';
 import { JsonObject, NodeApiError, NodeConnectionTypes, NodeOperationError } from 'n8n-workflow';
 
+// Single source of truth for the node version.
+// Bump this alongside package.json on every release.
+const NODE_VERSION = '1.0.15';
+
 export class PromptLockGuard implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'PromptLock Guard',
@@ -279,7 +283,7 @@ export class PromptLockGuard implements INodeType {
 						url: `${baseUrl}/v1/analyze`,
 						headers: {
 							'Content-Type': 'application/json',
-							'User-Agent': 'n8n-promptlock-guard/1.0.0',
+							'User-Agent': `n8n-promptlock-guard/${NODE_VERSION}`,
 						},
 						body,
 						json: true,
@@ -301,7 +305,7 @@ export class PromptLockGuard implements INodeType {
 					usage: response.usage || {},
 					medical_context_detected: response.medical_context_detected || false,
 					timestamp: new Date().toISOString(),
-					node_version: '1.0.0',
+					node_version: NODE_VERSION,
 				};
 				setByPath(outItem, metaPath, metadata);
 
@@ -331,20 +335,6 @@ export class PromptLockGuard implements INodeType {
 						break;
 				}
 			} catch (error) {
-				if (this.continueOnFail()) {
-					const outItem: IDataObject = { ...original };
-					const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-					setByPath(outItem, 'promptLock', {
-						error: errorMessage,
-						error_type: error instanceof Error ? error.constructor.name : 'UnknownError',
-						node: 'PromptLockGuard',
-						timestamp: new Date().toISOString(),
-						node_version: '1.0.0',
-					});
-					outFlag.push({ json: outItem, pairedItem: { item: i } });
-					continue;
-				}
-
 				const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 				const errorType = error instanceof Error ? error.constructor.name : 'UnknownError';
 				const errorMetadata = {
@@ -352,19 +342,36 @@ export class PromptLockGuard implements INodeType {
 					error_type: errorType,
 					node: 'PromptLockGuard',
 					timestamp: new Date().toISOString(),
-					node_version: '1.0.0',
+					node_version: NODE_VERSION,
 				};
 
 				const outItem: IDataObject = { ...original };
-				const metaPathFallback = (this.getNodeParameter('additionalSettings', i, {}) as IDataObject).metaPath as string || 'promptLock';
-				setByPath(outItem, metaPathFallback, errorMetadata);
+				// metaPath is already resolved at the top of the loop — honor the
+				// user's configured metadata path in error output too.
+				setByPath(outItem, metaPath, errorMetadata);
 				const outputItem = { json: outItem, pairedItem: { item: i } };
+
+				// Respect the user's On API Error setting in ALL error paths.
+				// When n8n's "Continue on Fail" is enabled we must not throw, so
+				// 'throw' degrades to fail-closed (Block) — the safest interpretation
+				// consistent with this node's security posture.
+				if (this.continueOnFail()) {
+					if (onError === 'allow') {
+						outAllow.push(outputItem);
+					} else if (onError === 'flag') {
+						outFlag.push(outputItem);
+					} else {
+						// 'block' and 'throw' both fail closed under continueOnFail
+						outBlock.push(outputItem);
+					}
+					continue;
+				}
 
 				if (onError === 'throw') {
 					if (error instanceof Error && 'response' in error) {
-					throw new NodeApiError(this.getNode(), error as unknown as JsonObject, { itemIndex: i });
-				}
-				throw new NodeOperationError(this.getNode(), errorMessage, { itemIndex: i });
+						throw new NodeApiError(this.getNode(), error as unknown as JsonObject, { itemIndex: i });
+					}
+					throw new NodeOperationError(this.getNode(), errorMessage, { itemIndex: i });
 				} else if (onError === 'allow') {
 					outAllow.push(outputItem);
 				} else if (onError === 'flag') {
