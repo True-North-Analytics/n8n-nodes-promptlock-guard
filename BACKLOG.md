@@ -20,6 +20,20 @@ mode** (WAF/CSP/fraud-tool detection-only rollout), and we should say so:
   client's existing workflows with zero behavioral risk, show the findings
   report, upsell enforcement.
 
+## Always-on prompt injection (marketing, 2026-07-17)
+
+Prompt-injection screening runs on EVERY request regardless of framework
+selection — the engine checks injection before any framework logic, even
+with zero frameworks selected. Detection stack: pattern rules always +
+`protectai/deberta-v3-base-prompt-injection-v2` (DeBERTa v3) ML scoring —
+Modal T4 GPU primary (~30ms warm), local fallback, rules-only in fast_mode.
+
+- README: state this plainly ("always on, whichever frameworks you pick")
+  and name the model — citing an open, benchmarked classifier is more
+  credible than "proprietary AI".
+- Template listings now carry the same line ("a poisoned PDF can't
+  instruct Claude") — keep node README consistent with it.
+
 ## Carried from v1.0.16 review notes
 
 - Document "Route Score Only To" in README (currently undocumented).
