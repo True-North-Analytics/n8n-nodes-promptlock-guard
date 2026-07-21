@@ -335,10 +335,36 @@ export class PromptLockGuard implements INodeType {
 						break;
 				}
 			} catch (error) {
-				const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+				// Surface the API's OWN explanation. On a 4xx/5xx the PromptLock API
+				// returns a JSON body with a `detail` (e.g. "Daily API key limit
+				// exceeded. Limit: 10,000 tokens/day"), but n8n replaces error.message
+				// with a generic status line (its 429 text, etc.), hiding the real
+				// cause from the workflow. Dig the body out and prefer it.
+				const err = error as unknown as {
+					message?: string;
+					httpCode?: string | number;
+					statusCode?: number;
+					response?: { status?: number; body?: unknown; data?: unknown };
+					cause?: { response?: { data?: unknown } };
+				};
+				const rawBody =
+					err?.response?.body ?? err?.response?.data ?? err?.cause?.response?.data;
+				let apiDetail: string | undefined;
+				if (rawBody && typeof rawBody === 'object') {
+					const b = rawBody as Record<string, unknown>;
+					const d = b.detail ?? b.message ?? b.error;
+					if (d !== undefined && d !== null) apiDetail = String(d);
+				} else if (typeof rawBody === 'string' && rawBody.trim()) {
+					apiDetail = rawBody.trim();
+				}
+				const httpCode = err?.httpCode ?? err?.response?.status ?? err?.statusCode;
+				const baseMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+				const errorMessage = apiDetail || baseMessage;
 				const errorType = error instanceof Error ? error.constructor.name : 'UnknownError';
 				const errorMetadata = {
 					error: errorMessage,
+					error_detail: apiDetail,
+					http_code: httpCode,
 					error_type: errorType,
 					node: 'PromptLockGuard',
 					timestamp: new Date().toISOString(),
