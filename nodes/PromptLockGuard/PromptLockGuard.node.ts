@@ -277,7 +277,7 @@ export class PromptLockGuard implements INodeType {
 
 				const response = (await this.helpers.httpRequestWithAuthentication.call(
 					this,
-					'promptLockApiKey',
+					'promptLockApiKeyApi',
 					{
 						method: 'POST',
 						url: `${baseUrl}/v1/analyze`,
