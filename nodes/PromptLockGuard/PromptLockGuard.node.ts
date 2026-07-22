@@ -9,25 +9,25 @@ import { JsonObject, NodeApiError, NodeConnectionTypes, NodeOperationError } fro
 
 // Single source of truth for the node version.
 // Bump this alongside package.json on every release.
-const NODE_VERSION = '1.0.15';
+const NODE_VERSION = '1.0.18';
 
 export class PromptLockGuard implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'PromptLock Guard',
 		name: 'promptLockGuard',
-		icon: 'file:promptlock.svg',
+		icon: { light: 'file:promptlock.svg', dark: 'file:promptlock-dark.svg' },
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"]}}',
 		description:
 			'AI-powered guardrail that analyzes, redacts, or blocks content based on compliance frameworks',
+		usableAsTool: true,
 		defaults: {
 			name: 'PromptLock Guard',
-			color: '#2E86C1',
 		},
 		credentials: [
 			{
-				name: 'promptLockApiKey',
+				name: 'promptLockApiKeyApi',
 				required: true,
 			},
 		],
@@ -133,14 +133,14 @@ export class PromptLockGuard implements INodeType {
 						name: 'actionOnHighRisk',
 						type: 'options',
 						options: [
+							{ name: 'Block', value: 'block' },
+							{ name: 'Flag', value: 'flag' },
 							{
-								name: 'Inherit from Policy',
+								name: 'Inherit From Policy',
 								value: 'inherit',
 								description: 'Use server-side policy configuration',
 							},
-							{ name: 'Flag', value: 'flag' },
 							{ name: 'Redact', value: 'redact' },
-							{ name: 'Block', value: 'block' },
 							{
 								name: 'Score Only',
 								value: 'score',
@@ -151,31 +151,12 @@ export class PromptLockGuard implements INodeType {
 						description: 'Override the default action when high risk content is detected',
 					},
 					{
-						displayName: 'Write Clean Text To',
-						name: 'cleanTextPath',
-						type: 'string',
-						default: 'cleanText',
-						placeholder: 'cleanText, sanitized, clean.message',
-						description: 'Field path where redacted/clean text will be written',
-					},
-					{
 						displayName: 'Attach Metadata Under',
 						name: 'metaPath',
 						type: 'string',
 						default: 'promptLock',
 						placeholder: 'promptLock, security, analysis',
 						description: 'Field path for analysis metadata (scores, violations, etc.)',
-					},
-					{
-						displayName: 'Route "Score Only" To',
-						name: 'routeScoreTo',
-						type: 'options',
-						options: [
-							{ name: 'Flag Output', value: 'flag' },
-							{ name: 'Allow Output', value: 'allow' },
-						],
-						default: 'flag',
-						description: 'Which output to use when action is "score only"',
 					},
 					{
 						displayName: 'On API Error',
@@ -207,7 +188,7 @@ export class PromptLockGuard implements INodeType {
 						description: 'Behavior when PromptLock API is unreachable or returns an error',
 					},
 					{
-						displayName: 'Request Timeout (ms)',
+						displayName: 'Request Timeout',
 						name: 'timeout',
 						type: 'number',
 						default: 15000,
@@ -217,6 +198,25 @@ export class PromptLockGuard implements INodeType {
 							numberStepSize: 1000,
 						},
 						description: 'HTTP timeout for the analyze request (1-60 seconds)',
+					},
+					{
+						displayName: 'Route "Score Only" To',
+						name: 'routeScoreTo',
+						type: 'options',
+						options: [
+							{ name: 'Flag Output', value: 'flag' },
+							{ name: 'Allow Output', value: 'allow' },
+						],
+						default: 'flag',
+						description: 'Which output to use when action is "score only"',
+					},
+					{
+						displayName: 'Write Clean Text To',
+						name: 'cleanTextPath',
+						type: 'string',
+						default: 'cleanText',
+						placeholder: 'cleanText, sanitized, clean.message',
+						description: 'Field path where redacted/clean text will be written',
 					},
 				],
 			},
@@ -231,7 +231,7 @@ export class PromptLockGuard implements INodeType {
 		const outRedact: INodeExecutionData[] = [];
 		const outBlock: INodeExecutionData[] = [];
 
-		const credentials = await this.getCredentials('promptLockApiKey');
+		const credentials = await this.getCredentials('promptLockApiKeyApi');
 		const baseUrl = (credentials.baseUrl as string).replace(/\/+$/, '');
 
 		for (let i = 0; i < items.length; i++) {

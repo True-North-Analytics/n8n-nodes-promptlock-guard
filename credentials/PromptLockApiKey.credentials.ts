@@ -5,9 +5,9 @@ import {
 	INodeProperties,
 } from 'n8n-workflow';
 
-export class PromptLockApiKey implements ICredentialType {
-	name = 'promptLockApiKey';
-	displayName = 'PromptLock API Key';
+export class PromptLockApiKeyApi implements ICredentialType {
+	name = 'promptLockApiKeyApi';
+	displayName = 'PromptLock API';
 	documentationUrl = 'https://docs.promptlock.com/integrations/n8n';
 	icon = 'file:promptlock.svg' as const;
 	properties: INodeProperties[] = [
@@ -26,8 +26,8 @@ export class PromptLockApiKey implements ICredentialType {
 			type: 'string',
 			typeOptions: { password: true },
 			default: '',
-			placeholder: 'ps_...',
-			description: 'Your PromptLock API key (starts with ps_)',
+			placeholder: 'pl_...',
+			description: 'Your PromptLock API key (starts with pl_)',
 			required: true,
 		},
 	];
