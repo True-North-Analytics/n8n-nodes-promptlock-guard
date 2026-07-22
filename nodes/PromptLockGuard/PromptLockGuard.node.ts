@@ -9,7 +9,7 @@ import { JsonObject, NodeApiError, NodeConnectionTypes, NodeOperationError } fro
 
 // Single source of truth for the node version.
 // Bump this alongside package.json on every release.
-const NODE_VERSION = '1.0.18';
+const NODE_VERSION = '1.0.19';
 
 export class PromptLockGuard implements INodeType {
 	description: INodeTypeDescription = {

@@ -9,7 +9,7 @@ describe('Build Tests', () => {
 	});
 
 	test('credentials should be compiled', () => {
-		const credPath = path.join(distPath, 'credentials', 'PromptLockApiKey.credentials.js');
+		const credPath = path.join(distPath, 'credentials', 'PromptLockApiKeyApi.credentials.js');
 		expect(fs.existsSync(credPath)).toBe(true);
 	});
 
@@ -27,7 +27,7 @@ describe('Build Tests', () => {
 		const pkg = require('../package.json');
 
 		expect(pkg.n8n).toBeDefined();
-		expect(pkg.n8n.credentials).toContain('dist/credentials/PromptLockApiKey.credentials.js');
+		expect(pkg.n8n.credentials).toContain('dist/credentials/PromptLockApiKeyApi.credentials.js');
 		expect(pkg.n8n.nodes).toContain('dist/nodes/PromptLockGuard/PromptLockGuard.node.js');
 	});
 });
